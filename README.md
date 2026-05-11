@@ -19,6 +19,7 @@ The system is built as a pipeline consisting of three main modules:
 
 ## Implementation Details
 ### The core of the project is a Python generator that simulates real-world system logs. It produces records with a mandatory base and a variable number of extra telemetry fields
+```python
 import random
 from datetime import datetime
 
@@ -37,6 +38,7 @@ def generate_dynamic_log():
         log[f"extraField_{i}"] = random.random()
         
     return log
+```
 
 ### Multi-Engine Acquisition Layer
 The system dispatches the same JSON payload to all databases in parallel to ensure benchmark consistency.
@@ -48,22 +50,27 @@ The system dispatches the same JSON payload to all databases in parallel to ensu
 The following examples show how the system aggregates dynamic data across different paradigms:
 
 #### PostgreSQL (Hybrid SQL):
--- Aggregating by a key nested inside a JSONB column
+```python
+// Aggregating by a key nested inside a JSONB column
 SELECT payload->>'eventType' as type, COUNT(*) 
 FROM logs 
 GROUP BY payload->>'eventType';
 
 #### MongoDB (Aggregation Pipeline):
+```python
 // Native document aggregation
 db.logs.aggregate([
   { "$group": { "_id": "$eventType", "count": { "$sum": 1 } } }
 ]);
+```
 
 #### DuckDB (OLAP Analytics):
--- High-speed aggregation directly on JSON structures
+```python
+// High-speed aggregation directly on JSON structures
 SELECT eventType, count(*) 
 FROM read_json_auto('logs.json') 
 GROUP BY eventType;
+```
 
 ## Benchmark Methodology
 All databases were tested using identical input data to ensure fair comparison.
