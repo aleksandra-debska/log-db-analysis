@@ -1,6 +1,6 @@
 # Log-DB-Bench: Dynamic Log Acquisition & Analysis Framework
 
-Benchmark and comparative analysis of SQL (PostgreSQL, MySQL), NoSQL (MongoDB), and OLAP (DuckDB) databases for handling high-velocity, semi-structured log data.
+Benchmark and comparative analysis of SQL (PostgreSQL, MySQL), NoSQL (MongoDB), and OLAP (DuckDB) databases for handling dynamic, semi-structured log data.
 
 ## Overview
 Modern systems generate logs with unpredictable, evolving structures. This project evaluates how different database engines handle "schema-on-read" vs "schema-on-write" approaches in the context of data acquisition and AI readiness (feature engineering).
@@ -8,13 +8,13 @@ Modern systems generate logs with unpredictable, evolving structures. This proje
 ### Tested Systems:
 - **PostgreSQL**: Using `JSONB` for binary-structured data and GIN indexing.
 - **MongoDB**: Native BSON document storage for maximum write throughput.
-- **DuckDB**: In-process OLAP engine for fast analytical queries on local JSON files.
+- **DuckDB**: In-process OLAP engine for fast analytical queries on JSON-based log data.
 - **MySQL/MariaDB**: Using the native `JSON` data type.
 
 ## System Architecture
 The system is built as a pipeline consisting of three main modules:
 1. **Synthetic Log Generator**: Produces logs with variable schemas (from 10 to 35 fields per record).
-2. **Acquisition Layer**: A Python-based intermediary that validates and dispatches data to all databases in parallel.
+2. **Acquisition Layer**: A Python-based intermediary that validates and dispatches data sequentially to multiple databases.
 3. **Analysis Engine**: Executes aggregation benchmarks (temporal, statistical, and categorical) across all platforms.
 
 ## Implementation Details
@@ -65,9 +65,19 @@ SELECT eventType, count(*)
 FROM read_json_auto('logs.json') 
 GROUP BY eventType;
 
+## Benchmark Methodology
+All databases were tested using identical input data to ensure fair comparison.
+Each scenario was executed using:
+- identical dataset (10,000 logs)
+- same aggregation query: COUNT(eventType = 'error')
+- measurement of:
+  - write time
+  - read time
+Results were validated to ensure consistency across all databases.
+
 ## Benchmark Scenarios
 Tested with **10,000+ records** across three structural complexities:
-- **Small**: Base fields (timestamp, level, message).
+- **Small**: Base fields (timestamp, eventType, userId, latency, device).
 - **Medium**: Added context fields (userId, sessionId, deviceType).
 - **Large**: High-cardinality dynamic fields (extra telemetry data, nested objects).
 
