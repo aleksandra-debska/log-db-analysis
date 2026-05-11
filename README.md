@@ -24,7 +24,7 @@ import random
 from datetime import datetime
 
 def generate_dynamic_log():
-    # Base mandatory fields
+    -- Base log structure
     log = {
         "timestamp": datetime.utcnow().isoformat(),
         "eventType": random.choice(["info", "warning", "error"]),
@@ -33,7 +33,7 @@ def generate_dynamic_log():
         "device": random.choice(["Android", "iOS", "Web"])
     }
     
-    # Inject 5 to 30 dynamic extra fields
+    -- Generate additional variable fields
     for i in range(random.randint(5, 30)):
         log[f"extraField_{i}"] = random.random()
         
@@ -51,7 +51,7 @@ The following examples show how the system aggregates dynamic data across differ
 
 #### PostgreSQL (Hybrid SQL):
 ```python
-// Aggregating by a key nested inside a JSONB column
+-- Aggregate logs by event type stored inside a JSONB document
 SELECT payload->>'eventType' as type, COUNT(*) 
 FROM logs 
 GROUP BY payload->>'eventType';
@@ -59,7 +59,7 @@ GROUP BY payload->>'eventType';
 
 #### MongoDB (Aggregation Pipeline):
 ```python
-// Native document aggregation
+-- Aggregation Pipeline grouping logs by event type
 db.logs.aggregate([
   { "$group": { "_id": "$eventType", "count": { "$sum": 1 } } }
 ]);
@@ -67,7 +67,7 @@ db.logs.aggregate([
 
 #### DuckDB (OLAP Analytics):
 ```python
-// High-speed aggregation directly on JSON structures
+-- OLAP aggregation on JSON-based log data
 SELECT eventType, count(*) 
 FROM read_json_auto('logs.json') 
 GROUP BY eventType;
