@@ -55,6 +55,7 @@ The following examples show how the system aggregates dynamic data across differ
 SELECT payload->>'eventType' as type, COUNT(*) 
 FROM logs 
 GROUP BY payload->>'eventType';
+```
 
 #### MongoDB (Aggregation Pipeline):
 ```python
